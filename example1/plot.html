@@ -1,0 +1,114 @@
+<!-- Plotly example 1
+Yosuke Tanigawa
+2017/11/14
+The description is in README.md
+-->
+
+<head>
+    
+    <!-- Plotly.js -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+    
+    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <script> 
+    /**
+     * Transposes a given array.
+     * @id Array.prototype.transpose
+     * @author Shamasis Bhattacharya
+     *
+     * @type Array
+     * @return The Transposed Array
+     * @compat=ALL
+     * http://www.shamasis.net/2010/02/transpose-an-array-in-javascript-and-jquery
+     */
+    Array.prototype.transpose = function() {
+
+      // Calculate the width and height of the Array
+      var a = this,
+        w = a.length ? a.length : 0,
+        h = a[0] instanceof Array ? a[0].length : 0;
+
+      // In case it is a zero matrix, no transpose routine needed.
+      if(h === 0 || w === 0) { return []; }
+
+      /**
+       * @var {Number} i Counter
+       * @var {Number} j Counter
+       * @var {Array} t Transposed data is stored in this array.
+       */
+      var i, j, t = [];
+
+      // Loop through every item in the outer array (height)
+      for(i=0; i<h; i++) {
+
+        // Insert a new row (array)
+        t[i] = [];
+
+        // Loop through every item per item in outer array (width)
+        for(j=0; j<w; j++) {
+
+          // Save transposed data.
+          t[i][j] = a[j][i];
+        }
+      }
+
+      return t;
+    };        
+    </script>    
+    
+    <script>        
+        function plotly_from_csv_callback(csv_string, plotDivName, plotTitle, y_col_idx, label_col_idx){
+
+            csv_array=$.csv.toArrays(csv_string);
+            csv_array_of_cols=csv_array.transpose();
+
+            var y = csv_array_of_cols[y_col_idx];
+            var l = csv_array_of_cols[label_col_idx];
+            var x = d3.range(1, 1 + y.length);
+            var data = [
+                {
+                    'x': x, 'y':y, 'text': l, 
+                    type:'scattergl', 'mode': 'markers'
+                }
+            ];
+
+            var layout = {
+                hovermode:'closest',
+                title: plotTitle
+            };
+
+            Plotly.newPlot(plotDivName, data, layout);             
+        } 
+        
+        function plotly_from_csv(csv_file, plotDivName, plotTitle, y_col_idx, label_col_idx) {
+            $.ajax({
+                url: csv_file,
+                dataType: 'text',
+            }).done(
+                text => plotly_from_csv_callback(
+                    text, plotDivName, plotTitle, y_col_idx, label_col_idx
+                )
+            );
+        }
+
+        $(document).ready(function () {
+            plotly_from_csv('data/testdata.csv', 'plotly_div_1', 'test plot', 2, 3);
+        });
+      
+    </script>
+    
+</head>
+
+<body>
+  <h1> sample plot </h1>
+  <div id='plotly_div_1'><!-- Plotly chart will be drawn inside this DIV --></div>
+    
+    
+<script>    
+
+    </script>    
+</body>
+
